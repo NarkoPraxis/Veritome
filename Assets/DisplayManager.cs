@@ -9,7 +9,9 @@ public class DisplayManager : MonoBehaviour {
     public GameObject DisplayPanel;
     public GameObject ReplacementWords;
 
+    public ML_TextParser textparser;
     public InputField English;
+    public GameObject WordPanel;
     public Text Translation;
 
     public InputField[] replaceFields;
@@ -74,12 +76,38 @@ public class DisplayManager : MonoBehaviour {
         string[] words = english.Split(' ');
         for (int i = 0; i < words.Length; i++)
         {
-            InputField newWord = Instantiate(English);
+            GameObject panel = Instantiate(WordPanel);
+            InputField newWord = panel.GetComponentInChildren<InputField>();
+            Text[] texts = panel.GetComponentsInChildren<Text>();
+
+            string label = textparser.getLabel(words[i]);
+            print(words[i] + " is labeled " + label);
+
+            for (int j = 0; j < texts.Length; j++)
+            {
+                if (texts[j].text.ToLower() == "grammar")
+                {
+                    texts[j].text = label;
+                }
+                else
+                {
+                    print(texts[j].text);
+                }
+            }
+
             newWord.text = words[i];
-            newWord.gameObject.transform.parent = ReplacementWords.transform;
-            newWord.transform.position = new Vector3(0, 0, 0);
+            newWord.transform.SetParent(panel.transform);
+            newWord.transform.position = new Vector3(0, -0, 0);
             newWord.transform.localScale = new Vector3(1, 1, 1);
             replaceFields[i] = newWord;
+
+            panel.transform.SetParent(ReplacementWords.transform);
+            panel.transform.position = new Vector3(0, 0, 0);
+            panel.transform.localScale = new Vector3(1, 1, 1);
+
+            
+           
+            
         }
         InputPanel.SetActive(false);
         ReplacePanel.SetActive(true);
