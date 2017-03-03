@@ -14,7 +14,9 @@ public class DisplayManager : MonoBehaviour {
     public GameObject WordPanel;
     public Text Translation;
 
+    public Text[] englishWords;
     public InputField[] replaceFields;
+    public GameObject[] replacePanels;
 
     enum State
     {
@@ -30,7 +32,9 @@ public class DisplayManager : MonoBehaviour {
 	void Start () {
         ReplacePanel.SetActive(false);
         DisplayPanel.SetActive(false);
-        replaceFields = new InputField[20];
+        replaceFields = new InputField[50];
+        replacePanels = new GameObject[50];
+        englishWords = new Text[50];
         currentState = State.Input;
 	}
 	
@@ -82,7 +86,10 @@ public class DisplayManager : MonoBehaviour {
 
             string label = textparser.getLabel(words[i]);
             print(words[i] + " is labeled " + label);
+            englishWords[i] = new GameObject().AddComponent<Text>();
+            englishWords[i].text = words[i];
 
+            words[i] = textparser.checkLanguage(words[i]);
             for (int j = 0; j < texts.Length; j++)
             {
                 if (texts[j].text.ToLower() == "grammar")
@@ -100,6 +107,7 @@ public class DisplayManager : MonoBehaviour {
             newWord.transform.position = new Vector3(0, -0, 0);
             newWord.transform.localScale = new Vector3(1, 1, 1);
             replaceFields[i] = newWord;
+            replacePanels[i] = panel;
 
             panel.transform.SetParent(ReplacementWords.transform);
             panel.transform.position = new Vector3(0, 0, 0);
@@ -121,6 +129,7 @@ public class DisplayManager : MonoBehaviour {
         {
             if (replaceFields[i] != null)
             {
+                textparser.updateLanguage(englishWords[i].text, replaceFields[i].text);
                 translation += replaceFields[i].text + " ";
             }
         }
@@ -141,10 +150,13 @@ public class DisplayManager : MonoBehaviour {
         {
             if (replaceFields[i] != null)
             {
-                Destroy(replaceFields[i].gameObject);
-                replaceFields[i] = null; 
+                Destroy(replacePanels[i].gameObject);
+                replacePanels[i] = null;
+                replaceFields[i] = null;
+                
             }
         }
+        englishWords = new Text[50];
         English.text = "";
         Translation.text = "";
         currentState = State.Input;
