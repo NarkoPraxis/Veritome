@@ -164,7 +164,7 @@ public class DisplayManager : MonoBehaviour {
         ReplacePanel.SetActive(false);
         DisplayPanel.SetActive(true);
         currentState = State.Display;
-
+        GUIUtility.systemCopyBuffer = translation;
     }
 
     public void startNewTranslation()
