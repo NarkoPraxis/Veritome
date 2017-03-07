@@ -87,7 +87,7 @@ public class ML_TextParser : MonoBehaviour {
         }
         else
         {
-            return "";
+            return "Grammar Not Found";
         }
     }
 

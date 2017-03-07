@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class DisplayManager : MonoBehaviour {
 
@@ -30,19 +31,38 @@ public class DisplayManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+       
         ReplacePanel.SetActive(false);
         DisplayPanel.SetActive(false);
         replaceFields = new InputField[50];
         replacePanels = new GameObject[50];
         englishWords = new Text[50];
         currentState = State.Input;
-	}
+    }
 	
 	// Update is called once per frame
 	void Update () {
         if (Input.GetKeyDown(KeyCode.Return))
         {
             changeState();
+        }
+        if (currentState == State.Replace && Input.GetKeyDown(KeyCode.Tab))
+        {
+            for (int i = 0; i < replaceFields.Length; i++)
+            {
+                if (replaceFields[i].isFocused)
+                {
+                    if (i+1 < replaceFields.Length && replaceFields[i+1] != null)
+                    {
+                        giveFocus(replaceFields[i+1].gameObject);
+                    }
+                    else
+                    {
+                        giveFocus(replaceFields[0].gameObject);
+                    }
+                }
+            }
+            
         }
 	}
 
@@ -69,10 +89,10 @@ public class DisplayManager : MonoBehaviour {
         string english = English.text;
         if (english == "")
         {
-            English.text = "You must Type Something";
+            English.text = "You must type something";
             return;
         }
-        if (english == "You must Type Something")
+        if (english == "You must type something")
         {
             English.text = "";
             return;
@@ -89,12 +109,16 @@ public class DisplayManager : MonoBehaviour {
             englishWords[i] = new GameObject().AddComponent<Text>();
             englishWords[i].text = words[i];
 
-            words[i] = textparser.checkLanguage(words[i]);
+           
             for (int j = 0; j < texts.Length; j++)
             {
-                if (texts[j].text.ToLower() == "grammar")
+                if (texts[j].text == "Grammar")
                 {
                     texts[j].text = label;
+                }
+                else if (texts[j].text == "Word")
+                {
+                    texts[j].text = words[i];
                 }
                 else
                 {
@@ -102,6 +126,7 @@ public class DisplayManager : MonoBehaviour {
                 }
             }
 
+            words[i] = textparser.checkLanguage(words[i].ToLower());
             newWord.text = words[i];
             newWord.transform.SetParent(panel.transform);
             newWord.transform.position = new Vector3(0, -0, 0);
@@ -117,6 +142,7 @@ public class DisplayManager : MonoBehaviour {
            
             
         }
+        giveFocus(replaceFields[0].gameObject);
         InputPanel.SetActive(false);
         ReplacePanel.SetActive(true);
         currentState = State.Replace;
@@ -160,5 +186,10 @@ public class DisplayManager : MonoBehaviour {
         English.text = "";
         Translation.text = "";
         currentState = State.Input;
+    }
+
+    private void giveFocus(GameObject needsFocus)
+    {
+        EventSystem.current.SetSelectedGameObject(needsFocus, null);
     }
 }
