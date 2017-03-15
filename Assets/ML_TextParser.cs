@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+
 
 public class ML_TextParser : MonoBehaviour {
 
@@ -76,7 +79,7 @@ public class ML_TextParser : MonoBehaviour {
         }
 
         print("Database Size: " + database.Count);
-
+        load();
     }
 	
     public string getLabel(string word)
@@ -93,22 +96,66 @@ public class ML_TextParser : MonoBehaviour {
 
     public void updateLanguage(string english, string newWord)
     {
-        if (!language.ContainsKey(english))
+        print("update called on " + english);
+        if (!language.ContainsKey(english.ToLower()))
         {
-            language[english] = newWord;
+            print(newWord + " was added to langauge");
+            language[english.ToLower()] = newWord;
         }
     }
 
     public string checkLanguage(string english)
     {
-        if (language.ContainsKey(english))
+        if (language.ContainsKey(english.ToLower()))
         {
-            return language[english];
+            return language[english.ToLower()];
         }
         return english;
     }
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
+    public void save()
+    {
+        
+        delete();
+        print("Saved");
+        BinaryFormatter bf = new BinaryFormatter();
+        FileStream testLanguage = File.Create(Application.persistentDataPath + "/" + "testLanguage" + ".dat");
+     
+        bf.Serialize(testLanguage, language);
+       
+        testLanguage.Close();
+      
+    }
+
+    public void load()
+    {
+        //string[] names = new string[3];
+        string lanName = "/" + "testLanguage" + ".dat";
+
+        if (File.Exists(Application.persistentDataPath + lanName))
+        {
+            print("found file");
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file = File.Open(Application.persistentDataPath + lanName, FileMode.Open);
+            language = (Dictionary<string, string>)bf.Deserialize(file);
+            file.Close();
+        }
+       else
+        {
+            print("coudln't find file");
+        }
+    }
+
+    public void delete()
+    {
+        string lanName = "/" + "testLanguage" + ".dat";
+        
+        if (File.Exists(Application.persistentDataPath + lanName))
+        {
+            print("deleted the file");
+            File.Delete(Application.persistentDataPath + lanName);
+           
+        }
+       
+    }
 }
